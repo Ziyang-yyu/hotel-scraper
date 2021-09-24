@@ -9,6 +9,11 @@ class houseSpider(scrapy.Spider):
     'https://www.booking.com/holiday-homes/index.en-gb.html?label=gen173nr-1DCAEoggI46AdIM1gEaHWIAQGYAQm4ARjIAQzYAQPoAQGIAgGoAgS4Ao-lpooGwAIB0gIkM2NkZDlkYzktN2Q1MC00MmJmLWI3ODMtMzkyODBhNjRhZGUz2AIE4AIB;sid=8f38d02c4fd198c2a435d8eb2493255f;from_booking_home_promotion=1;srpvid=ae3d3a04a34a009f&'
         ]
    
+    info = []
+
+    # Overwrite previous file, if not existing, it will create one
+    file = open('hotelInfo.txt', 'w')
+    
    # Content of the page is inside response
     def parse(self, response):
         # Select all the wanted elements
@@ -21,16 +26,30 @@ class houseSpider(scrapy.Spider):
         score = response.css("span.review-score-badge::text").get()
         price = response.css("div.bui-price-display__value::text").get()
         locat = response.css("p.bui-card__text::text").get()
-        links = []
-        for link in response.css("div.sr__card_cta_row > a::attr('href')"):
-            links.append(response.urljoin(link.extract()))
+       
         
-        # Create an object to store the data
+        # Create a dictionary to store the data
         hotelData={}
-      
-        hotelData['Review Score'] = score
-        hotelData['Minimum Price per night'] = price
-        hotelData['Location'] = locat
-        hotelData['href'] = links
+        if score is None:
+            score = "No score yet"
+        if price is None:
+            score = "No price shown yet"
+        if locat is None:
+            score = "No location shown yet"
+        hotelData['Review Score: '] = score.strip()
+        hotelData['Minimum Price per night: '] = price.strip()
+        hotelData['Location: '] = locat.strip()
+      #  hotelData['href'] = links
+        
+        #print(hotelData)
+        self.file = open('hotelInfo.txt', 'a')
+        
+        for key in hotelData:
+            self.file.write(key+hotelData[key]+'\n')
+        self.file.write("\n")
+        self.file.close()
 
-        print(hotelData)
+
+
+        
+        
