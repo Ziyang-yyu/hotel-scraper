@@ -1,5 +1,5 @@
 import scrapy
-
+from urllib.request import urlopen
 
 class houseSpider(scrapy.Spider):
 # This name represents the name of the crawler we want to run
@@ -26,7 +26,9 @@ class houseSpider(scrapy.Spider):
         score = response.css("span.review-score-badge::text").get()
         price = response.css("div.bui-price-display__value::text").get()
         locat = response.css("p.bui-card__text::text").get()
-       
+        links = []
+        for link in response.css("div.sr__card_cta_row > a::attr('href')"):
+            links.append(response.urljoin(link.extract()))
         
         # Create a dictionary to store the data
         hotelData={}
@@ -38,15 +40,21 @@ class houseSpider(scrapy.Spider):
             score = "No location shown yet"
         hotelData['Review Score: '] = score.strip()
         hotelData['Minimum Price per night: '] = price.strip()
-        hotelData['Location: '] = locat.strip()
-      #  hotelData['href'] = links
+        hotelData['Location: '] = locat
+        hotelData['href'] = links
         
         #print(hotelData)
         self.file = open('hotelInfo.txt', 'a')
         
         for key in hotelData:
-            self.file.write(key+hotelData[key]+'\n')
+            if key == 'href':
+                for link in hotelData[key]:
+                    self.file.write(link+'\n')
+                    
+            else:
+                self.file.write(key+hotelData[key]+'\n')
         self.file.write("\n")
+    
         self.file.close()
 
 
