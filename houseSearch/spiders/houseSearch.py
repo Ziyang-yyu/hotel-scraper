@@ -1,3 +1,7 @@
+# Creator: Ziyang
+# Last edited: 26/09/2021
+# Claimer: This is a project purely for learning and should not be used for any commercial purposes
+
 import scrapy
 from urllib.request import urlopen
 
